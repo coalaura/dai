@@ -46,7 +46,10 @@
 		"⁻": "-",
 		"–": "-",
 		"‐": "-",
-		"—": ", ",
+		"—": "-",
+		"─": "-",
+
+		"═": "=",
 
 		// dots
 		"·": ".",
@@ -56,73 +59,58 @@
 		"×": "x",
 		"÷": "/",
 		"⁄": "/",
+		"∗": "*",
 		"±": "+/-",
 		"≈": "~",
+		"≅": "~",
+		"≆": "~",
+		"≊": "~",
+		"∼": "~",
+		"≕": "=:",
+		"≔": ":=",
 		"≠": "!=",
+		"≣": "===",
+		"≡": "==",
 		"≤": "<=",
+		"≦": "<=",
+		"⩽": "<=",
+		"⋜": "<=",
 		"≥": ">=",
+		"≧": ">=",
+		"⩾": ">=",
+		"⋝": ">=",
+		"⋙": ">>>",
+		"⋘": "<<<",
+		"≫": ">>",
+		"≪": "<<",
+		"≩": ">",
+		"≨": "<",
 		"√": "sqrt",
 
 		// arrows
-		"→": "->",
-		"←": "<-",
-		"↔": "<->",
-  		"⇒": "=>",
+		"⇒": "=>",
 		"⇐": "<=",
-		"➔": "->",
-		"➙": "->",
 
 		// others
 		"…": "...",
 	};
 
+	const rgx = `(${Object.keys(Mapping).join("|")})`;
+
 	const $input = document.getElementById("input"),
+		$overlay = document.getElementById("overlay"),
+		$cleanup = document.getElementById("cleanup"),
 		$copied = document.getElementById("copied");
 
 	$input.addEventListener("paste", update);
 	$input.addEventListener("input", update);
+	$input.addEventListener("scroll", sync);
+
+	$cleanup.addEventListener("click", cleanup);
 
 	let timeout;
 
-	function notify() {
-		clearTimeout(timeout);
-
-		$copied.classList.add("show");
-
-		timeout = setTimeout(() => {
-			$copied.classList.remove("show");
-		}, 1500);
-	}
-
-	function update() {
-		const original = $input.value?.trim();
-
-		if (!original) {
-			return;
-		}
-
-		let cleaned = "",
-			deltaMap = [];
-
-		const chars = `[${Object.keys(Mapping).join("")}]`,
-			regexp = new RegExp(chars, "g");
-
-		cleaned = original.replace(regexp, (match, offset) => {
-			const replacement = Mapping[match] || match,
-				delta = replacement.length - match.length;
-
-			if (delta !== 0) {
-				deltaMap.push({
-					index: offset,
-					delta: delta,
-				});
-			}
-
-			return replacement;
-		});
-
-		if (cleaned === original) return;
-
+	function reselect(deltaMap) {
 		const { selectionStart, selectionEnd } = $input;
 
 		let newStart = selectionStart,
@@ -138,13 +126,92 @@
 			}
 		}
 
+		$input.setSelectionRange(newStart, newEnd);
+	}
+
+	function copy(text) {
+		navigator.clipboard.writeText(text);
+
+		clearTimeout(timeout);
+
+		$copied.classList.add("show");
+
+		timeout = setTimeout(() => {
+			$copied.classList.remove("show");
+		}, 750);
+	}
+
+	function sync() {
+		$overlay.scrollTop = $input.scrollTop;
+	}
+
+	function update() {
+		const value = $input.value || $input.placeholder;
+
+		$overlay.innerHTML = escapeHTML(value).replace(new RegExp(`${rgx}+`, "g"), match => {
+			return `<span class="unicode">${match}</span>`;
+		});
+
+		$overlay.innerHTML += "\n".repeat(10);
+
+		sync();
+	}
+
+	function cleanup() {
+		const value = $input.value,
+			scrollTop = $input.scrollTop,
+			deltaMap = [];
+
+		let cleaned = value;
+
+		// Special case for em dash without space in front (becomes comma instead)
+		cleaned = cleaned.replace(/(?<! )— ?/g, ", ");
+
+		// Other cases
+		cleaned = cleaned.replace(new RegExp(rgx, "g"), (match, offset) => {
+			const replacement = Mapping[match] || match,
+				delta = replacement.length - match.length;
+
+			if (delta !== 0) {
+				deltaMap.push({
+					index: offset,
+					delta: delta,
+				});
+			}
+
+			return replacement;
+		});
+
 		$input.value = cleaned;
 
-		$input.setSelectionRange(newStart, newEnd);
+		requestAnimationFrame(() => {
+			$input.scrollTop = scrollTop;
+		});
 
-		navigator.clipboard.writeText(cleaned);
+		update();
 
-		notify();
+		reselect(deltaMap);
+
+		copy(cleaned);
+	}
+
+	function escapeHTML(str) {
+		return str.replace(/[&<>"']/g, char => {
+			switch (char) {
+				case "&":
+					return "&amp;";
+				case "<":
+					return "&lt;";
+				case ">":
+					return "&gt;";
+				case '"':
+					return "&quot;";
+				case "'":
+					return "&#39;";
+			}
+
+			return char;
+		});
 	}
 
 	update();

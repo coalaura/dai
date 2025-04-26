@@ -11,14 +11,30 @@
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 		<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet" />
 
-		<link rel="stylesheet" href="dai.css" />
+		<link rel="stylesheet" href="dai.css?v=1745709476" />
 	</head>
 	<body>
 		<div id="page">
-			<h1>De-AI your text <i id="copied">Copied!</i></h1>
-			<textarea id="input" placeholder="AI written — text with ‘plenty’ of weird “unicode” characters…"></textarea>
+			<h1>
+				De-AI your text
+
+				<div class="actions">
+					<i id="copied">Cleaned & Copied!</i>
+					<i id="cleanup">Cleanup</i>
+				</div>
+			</h1>
+
+			<div class="wrapper">
+				<textarea id="input" placeholder="AI—written text with ‘plenty’ of weird “unicode” characters…" spellcheck="false"></textarea>
+
+				<div id="overlay"></div>
+			</div>
 		</div>
 
-		<script src="dai.js"></script>
+		<footer>
+			&copy; 2025<script>y=new Date().getFullYear();y!==2025&&document.write(`-${y}`)</script> <a href="https://github.com/coalaura" target="_blank">coalaura</a>
+		</footer>
+
+		<script src="dai.js?v=1745709476"></script>
 	</body>
 </html>
