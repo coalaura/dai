@@ -111,7 +111,7 @@
 
 		// Base cases
 		cleaned = cleaned.replace(new RegExp(baseRgx, "g"), (match, offset) => {
-			const replacement = Mapping[match] || match,
+			const replacement = Base[match] || match,
 				delta = replacement.length - match.length;
 
 			if (delta !== 0) {
@@ -129,7 +129,7 @@
 
 		// Remaining special cases
 		cleaned = cleaned.replace(new RegExp(specialRgx, "g"), (match, offset) => {
-			const replacement = Mapping[match] || match,
+			const replacement = Special[match] || match,
 				delta = replacement.length - match.length;
 
 			if (delta !== 0) {
