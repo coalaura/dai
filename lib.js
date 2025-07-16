@@ -1,5 +1,5 @@
 (() => {
-	const Mapping = {
+	const Base = {
 		// double-quotes
 		"“": '"',
 		"”": '"',
@@ -39,15 +39,6 @@
 		"\u200C": "",
 		"\u200D": "",
 		"\uFEFF": "",
-
-		// dashes
-		"‑": "-",
-		"−": "-",
-		"⁻": "-",
-		"–": "-",
-		"‐": "-",
-		"—": "-",
-		"─": "-",
 
 		"═": "=",
 
@@ -95,18 +86,49 @@
 		"…": "...",
 	};
 
-	const rgx = `(${Object.keys(Mapping).join("|")})`;
+	const Special = {
+		// dashes
+		"‑": "-",
+		"−": "-",
+		"⁻": "-",
+		"–": "-",
+		"‐": "-",
+		"—": "-",
+		"─": "-",
+	};
+
+	const baseList = Object.keys(Base).join("|"),
+		specialList = Object.keys(Special).join("|");
+
+	const baseRgx = `(${baseList})`,
+		specialRgx = `(${specialList})`,
+		fullRgx = `(${baseList}|${specialList})`;
 
 	function clean(text) {
 		const deltaMap = [];
 
 		let cleaned = text;
 
-		// Special case for em dash without space in front (becomes comma instead)
-		cleaned = cleaned.replace(/(?<! )— ?/g, ", ");
+		// Base cases
+		cleaned = cleaned.replace(new RegExp(baseRgx, "g"), (match, offset) => {
+			const replacement = Mapping[match] || match,
+				delta = replacement.length - match.length;
 
-		// Other cases
-		cleaned = cleaned.replace(new RegExp(rgx, "g"), (match, offset) => {
+			if (delta !== 0) {
+				deltaMap.push({
+					index: offset,
+					delta: delta,
+				});
+			}
+
+			return replacement;
+		});
+
+		// Edge cases
+		cleaned = handleEdgeCases(cleaned);
+
+		// Remaining special cases
+		cleaned = cleaned.replace(new RegExp(specialRgx, "g"), (match, offset) => {
 			const replacement = Mapping[match] || match,
 				delta = replacement.length - match.length;
 
@@ -126,8 +148,18 @@
 		};
 	}
 
+	function handleEdgeCases(text) {
+		// Special case for em dash followed by quotes (broken off dialog)
+		text = text.replace(/—(?=")/g, "-");
+
+		// Special case for em dash without space in front (becomes comma instead)
+		text = text.replace(/(?<! )— ?/g, ", ");
+
+		return text;
+	}
+
 	window.dai = {
 		clean: clean,
-		regex: rgx,
+		regex: fullRgx,
 	};
 })();
