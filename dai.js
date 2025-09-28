@@ -1,8 +1,8 @@
 (() => {
 	const $input = document.getElementById("input"),
 		$overlay = document.getElementById("overlay"),
-		$cleanup = document.getElementById("cleanup"),
-		$copied = document.getElementById("copied");
+		$counter = document.getElementById("counter"),
+		$cleanup = document.getElementById("cleanup");
 
 	$input.addEventListener("paste", update);
 	$input.addEventListener("input", update);
@@ -36,10 +36,12 @@
 
 		clearTimeout(timeout);
 
-		$copied.classList.add("show");
+		$cleanup.textContent = "Cleaned & Copied!";
+		$cleanup.classList.add("cleaned");
 
 		timeout = setTimeout(() => {
-			$copied.classList.remove("show");
+			$cleanup.textContent = "Clean & Copy";
+			$cleanup.classList.remove("cleaned");
 		}, 750);
 	}
 
@@ -50,14 +52,21 @@
 	function update() {
 		const value = $input.value || $input.placeholder;
 
-		$overlay.innerHTML = escapeHTML(value).replace(
-			new RegExp(`${dai.regex}+`, "g"),
-			(match) => {
-				return `<span class="unicode">${match}</span>`;
-			},
-		);
+		$cleanup.classList.toggle("disabled", !$input.value);
+
+		let count = 0;
+
+		$overlay.innerHTML = escapeHTML(value).replace(new RegExp(`${dai.regex}+`, "g"), match => {
+			count++;
+
+			return `<span class="unicode">${match}</span>`;
+		});
 
 		$overlay.innerHTML += "\n".repeat(10);
+
+		$counter.textContent = `${count > 0 ? count : "no"} issues found`;
+		$counter.classList.toggle("none", count === 0);
+		$counter.classList.toggle("hidden", !$input.value);
 
 		sync();
 	}
@@ -65,6 +74,10 @@
 	function cleanup() {
 		const value = $input.value,
 			scrollTop = $input.scrollTop;
+
+		if (!value) {
+			return;
+		}
 
 		const { cleaned, deltaMap } = dai.clean(value);
 
@@ -82,7 +95,7 @@
 	}
 
 	function escapeHTML(str) {
-		return str.replace(/[&<>"']/g, (char) => {
+		return str.replace(/[&<>"']/g, char => {
 			switch (char) {
 				case "&":
 					return "&amp;";

@@ -4,16 +4,16 @@
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-		<title>d-ai</title>
-		<meta name="description" content="d-ai strips hidden Unicode quirks from AI-generated text, curly quotes, zero-width spaces, fancy dashes, yielding clean, plain more human output." />
+		<title>utf.moe | AI Text Sanitizer</title>
+		<meta name="description" content="Strips frustrating Unicode from AI-generated text. Intelligently cleans curly quotes, em-dashes, and invisible spaces to make LLM output easy to work with." />
 
 		<link rel="preconnect" href="https://fonts.googleapis.com" />
 		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 		<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet" />
 
-		<link rel="stylesheet" href="dai.css?v=1745709476" />
+		<link rel="stylesheet" href="dai.css?v=1759021940" />
 
-		<script defer data-domain="dai.shrt.day" src="https://scout.shrt.day/js/script.js"></script>
+		<script defer data-domain="utf.moe" src="https://scout.shrt.day/js/script.js"></script>
 	</head>
 	<body>
 		<div id="page">
@@ -21,15 +21,15 @@
 				De-AI your text
 
 				<div class="actions">
-					<i id="copied">Cleaned & Copied!</i>
-					<i id="cleanup">Cleanup</i>
+					<a id="cleanup">Clean & Copy</a>
 				</div>
 			</h1>
 
 			<div class="wrapper">
-				<textarea id="input" placeholder="AI—written text with ‘plenty’ of weird “unicode” characters…" spellcheck="false"></textarea>
+				<textarea id="input" placeholder="AI—written text with ‘plenty’ of weird “unicode” characters…" autocomplete="false" spellcheck="false"></textarea>
 
 				<div id="overlay"></div>
+				<div id="counter"></div>
 			</div>
 		</div>
 
@@ -37,7 +37,7 @@
 			&copy; 2025<script>y=new Date().getFullYear();y!==2025&&document.write(`-${y}`)</script> <a href="https://github.com/coalaura" target="_blank">coalaura</a>
 		</footer>
 
-		<script src="lib.js?v=1752630249"></script>
-		<script src="dai.js?v=1752630249"></script>
+		<script src="lib.js?v=1759021940"></script>
+		<script src="dai.js?v=1759021940"></script>
 	</body>
 </html>
